@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="800e69f5-c9ba-4619-b61f-1ccd4177d494" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<ee:object-store-caching-strategy name="Caching_Strategy" doc:name="Caching Strategy" doc:id="42cdf6ef-71b7-430d-a125-aa21192eba53" keyGenerationExpression="#[vars.ID]" objectStore="Object_store"/>
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="ae392c51-c798-4957-b5db-05bebb5c4c23" maxEntries="20" entryTtl="20" expirationInterval="60" config-ref="ObjectStore_Config"/>
+	<os:config name="ObjectStore_Config" doc:name="ObjectStore Config" doc:id="a93df24b-a2be-4932-a277-2bdfc2b6c6aa" />
+	<!-- [STUDIO:"With-Out-Cache"]<flow name="With-Out-Cache" doc:id="b2558321-a35b-47c8-b2ec-b7c15e4b7ac3" >
+		<http:listener doc:name="Listener" doc:id="5c1987de-900d-4158-995a-6e3f2363bacf" config-ref="HTTP_Listener_config" path="test"/>
+		<set-variable value="#[payload.id&#93;" doc:name="ID." doc:id="d56721bb-39c9-49ac-90ab-59c4c3b06eab" variableName="ID"/>
+		<logger level="INFO" doc:name="LOG ENTRY." doc:id="41f65246-80c7-419f-8a2b-c04010903560" message="Log Entry."/>
+		<http:request method="GET" doc:name="List User." doc:id="0984e523-6b04-487a-b6ba-4cc096f6fcfe" url="https://reqres.in/api/users">
+			<http:query-params ><![CDATA[#[output application/java
+&#45;&#45;-
+{
+	"id" : vars.ID
+}&#93;&#93;&#93;></http:query-params>
+		</http:request>
+		<logger level="INFO" doc:name="LOG EXIT." doc:id="e846898d-b70a-4478-add2-e4d5d21e07c8" message="Log Exit."/>
+	</flow> [STUDIO] -->
+	<!-- [STUDIO:"cache-with-default-caching-strategy."]<flow name="cache-with-default-caching-strategy." doc:id="31a34479-bbff-400a-916d-aa023cdf084e" >
+		<http:listener doc:name="Listener" doc:id="eb229bba-dd8c-4331-92e1-c823c1576608" config-ref="HTTP_Listener_config" path="test1"/>
+		<set-variable value="#[payload.id&#93;" doc:name="ID." doc:id="d1ff2b40-53f4-4cbc-90a6-7bf24bbe24e8" variableName="ID" />
+		<logger level="INFO" doc:name="Before Cache Scope." doc:id="93b99058-05a0-4b99-b1e0-269f807556c1" message="Before Cache Scope."/>
+		<ee:cache doc:name="Cache" doc:id="4d454eb2-45db-41b0-87bf-ba66a033d49e" ><http:request method="GET" doc:name="List User." doc:id="07fd60e1-7410-4c4a-8bfd-c9d861344ffd" url="https://reqres.in/api/users">
+			<http:query-params ><![CDATA[#[output application/java
+&#45;&#45;-
+{
+	"id" : vars.ID
+}&#93;&#93;&#93;></http:query-params>
+		</http:request>
+			<logger level="INFO" doc:name="Within Cache Scope." doc:id="26db3f3c-2a18-42a1-b4d7-d597467cb780" message="Within Cache Scope."/>
+		</ee:cache>
+		<logger level="INFO" doc:name="After Cache Scope." doc:id="0c4d2baa-2a2c-4c99-9890-ad3900fb66b2" message="After Cache Scope."/>
+	</flow> [STUDIO] -->
+	<!-- [STUDIO:"cache-custom-caching-without-objectstore"]<flow name="cache-custom-caching-without-objectstore" doc:id="f04cada9-6544-44a2-9278-4053948c8715" >
+		<http:listener doc:name="Listener" doc:id="65bc2859-c2da-47e1-891e-64ea1a425ecd" config-ref="HTTP_Listener_config" path="test2"/>
+		<set-variable value="#[payload.id&#93;" doc:name="ID." doc:id="752fa3cc-d415-4321-ad43-3aef8aeba63a" variableName="ID" />
+		<logger level="INFO" doc:name="Before Cache Scope." doc:id="e75fafc5-f7ec-4d0f-9637-e5e6c4cc1535" message="Before Cache Scope."/>
+		<ee:cache doc:name="Cache" doc:id="dd63ace4-17ee-4a55-9e41-aa19362c5b65" cachingStrategy-ref="Caching_Strategy"><http:request method="GET" doc:name="List User." doc:id="9043c146-44e6-4de3-a41d-9f9cddbe65cc" url="https://reqres.in/api/users">
+			<http:query-params ><![CDATA[#[output application/java
+&#45;&#45;-
+{
+	"id" : vars.ID
+}&#93;&#93;&#93;></http:query-params>
+		</http:request>
+			<logger level="INFO" doc:name="Within Cache Scope." doc:id="fd715e16-c793-4833-b4d8-e7a9b3180653" message="Within Cache Scope."/>
+		</ee:cache>
+		<logger level="INFO" doc:name="After Cache Scope." doc:id="b19a547e-6e38-4a89-8296-b26c3d3e3d8e" message="After Cache Scope."/>
+	</flow> [STUDIO] -->
+	<flow name="cache-custom-caching-with-objectstore" doc:id="b856c284-12a2-4a16-992f-9b264a9079d7" >
+		<http:listener doc:name="Listener" doc:id="355659e6-395a-4f90-9ed5-48a5120c4621" config-ref="HTTP_Listener_config" path="test3"/>
+		<set-variable value="#[payload.id]" doc:name="ID." doc:id="80a4c0c5-7e9f-4e28-ab96-481c13ab38a3" variableName="ID" />
+		<logger level="INFO" doc:name="Before Cache Scope." doc:id="000c92a1-1c39-45ba-a751-957dd411fb11" message="Before Cache Scope."/>
+		<ee:cache doc:name="Cache" doc:id="ccbc21d3-09bc-4749-8582-305c524e2040" cachingStrategy-ref="Caching_Strategy"><http:request method="GET" doc:name="List User." doc:id="d26fb5e8-25d9-4d2c-be0e-7b45cefa5f3e" url="https://reqres.in/api/users">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"id" : vars.ID
+}]]]></http:query-params>
+		</http:request>
+			<logger level="INFO" doc:name="Within Cache Scope." doc:id="299c8707-0618-439d-b9a6-470221a48713" message="Within Cache Scope."/>
+		</ee:cache>
+		<logger level="INFO" doc:name="After Cache Scope." doc:id="ba93ee31-7966-406b-ba98-afbf480b9f9b" message="After Cache Scope."/>
+	</flow>
+	<flow name="cache-scopeFlow" doc:id="93e56f92-a38e-42d3-93a5-04d47914c83e" >
+		<scheduler doc:name="Scheduler" doc:id="0d481652-a8c7-460b-b6f5-0baff4462808" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="10" timeUnit="SECONDS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<os:retrieve-all-keys doc:name="Retrieve all keys" doc:id="3a4b9069-4fac-4d1d-b830-701b34b2d0c3" objectStore="Object_store"/>
+		<logger level="INFO" doc:name="payload." doc:id="fd051272-66fb-4157-823e-94f8d47f410d" message="#[payload]"/>
+	</flow>
+</mule>
